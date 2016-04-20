@@ -1,0 +1,11 @@
+﻿Project 1 Changes - Refactoring 5 cards
+
+The 5 cards i chose to refactor were the Smithy, the Village, the Outpost, the Great Hall
+and the Salvager. I kept the calls within the switch statement, just because it seems like
+later on this will be the best way to check to see which card is being used, simply using the case:card_name
+and then calling the appropriate function. I moved all of the code for each card out of the switch statement 
+and into their own functions. Each function is named card_name, where name is the name of the card.
+Each function has to have the gamestate, currentPlayer and handPos as parameters, since they need to know
+which player it is, which card to get rid of after it's used and they need to be able to update the gamestate.
+The salvager also needs choice1 passed to it. I made each function an int that returns 0, so that it can simply 
+make a call to the function in the return itself.  
