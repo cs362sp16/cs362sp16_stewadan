@@ -1,5 +1,7 @@
 #include "dominion.h"
-
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
 int failed = 0;
 
 int myassert(int b,char* msg) {
