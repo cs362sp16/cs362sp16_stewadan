@@ -1,0 +1,16 @@
+Aftering running all of my unit tests, I'm at 35.73% coverage. So these tests aren't covering a lot of the code, but I think thats okay, as we weren't really aiming for a large amount of coverage right now.
+I believe an ideal amount, other than 100% of course, would be 90%+ for unit tests. 
+This low amount of coverage could mean that any errors popping up could be coming from some other part of the code that hasn't really been looked at yet though.
+
+I didn't really make my own assert function, I just put in print statements that would tell me whether or not the desired outcome was in line with the actual outcome, and had it bring either TEST FAILED or TEST PASSED for 
+each of the different tests. 
+
+I didn't want to only do unit tests on really short functions, so I tried to pick some of the larger ones that wouldn't require the assumption that other fucntions are also running correctly. 
+I tried to do the same for the cards, avoiding the largets, most complicated ones and focusing on medium length ones. I'm surprised I didn't find more errors in the unit tests, for the most part
+the fucntions seem to be doing what they're supposed to. I'm still not entirely sure if the error's that I'm getting for the minion and council_room cards are coming from the way the game draws cards
+or the way that it handles other players when it isn't their turn. As far as I know when player 1 ends their turn, after having played a council_room, and it goes to player 2's turn, player 2 should have
+an extra card in their hand because they don't discard and draw until the end of their turn. 
+
+Something that doesn't appear as an error in my unit test, but that seems fishy to me is that for unittest3, the function counts the total amount of cards right, but it appears to me that the total shouldn't change
+from the first run. The cards will be in different locations, either the hand, discard, or deck, but there should still be the same amount, even when randomly discarding some of them. It appears something may be wrong with 
+counting cards that get discarded, or that discarding a card with the discard function doesn't add it to the discard pile when it should. 
