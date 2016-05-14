@@ -1,0 +1,19 @@
+The cards i tested were the adventurer, the salvager and the council room. 
+
+I used the same base for each of the tests, which included setting up a random game state and then setting the hand, deck and discard for player 0.
+
+For the council room test I also had to include choosing a random number of playerse and setting random hands decks and discards for them as well, as it affects every player in the game.
+
+For the adventurer card i was able to cover all of the code, although i noticed that the part of the code that runs when the deck is empty only ran a total of one time, and this was probably fairly rare 
+considering that i only did 20 tests, and it selects a random number of cards to be put into the players hand, it's unlikely that this number is going to be 0, especially with such a few number of tests. 
+
+For the salvager card I was able to get full line coverage as well, but this was easy as the salvager only has one effect, there aren't any ifs involved in it. I did find an error while working on the salvager card, where it 
+appeared to be returning the wrong number every time, and i found it was trying to use the wrong card as input. I'm not sure if this is an error i made earlier or if it's one that was always there. 
+
+For the council room card i was also able to get full line coverage, as again there weren't any ifs involved in it, it only ahs one function, making the player who played it draw 4 cards, gain a buy, and then making every
+other player draw a card. 
+
+I made a unit test for council room as well, and it appears that both of them have the same coverage. However, I think random testing it is better at detecting faults, as if any are present and based on the number of players
+or something like that they will be found. I noticed in the tests for salvager, which are in randomcardtest1.out, that some of the tests fail. I have each test print out some information, and it appears that every failing test
+happens when it attempts to salvage anther salvage card, this always returns a value of 0 for some reason instead of the cost. The tests pass for the other 2 cards, but I think if they were broken the tests would catch it.
+I do only run 20 for all of them though, so it's possible that there are more problems that aren't being found just based on the number of tests being done.  
