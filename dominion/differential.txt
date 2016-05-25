@@ -1,0 +1,12 @@
+After running each implementation of dominion, I didn't find any instance where they differed. This is probably because I'm not sure how we're checking for differences, 
+I was checking for whether or not the game crashed somehow, but for every seed each one seems to play a valid game of dominion, as far as the code goes. 
+
+The only other way I could imagine that we'd look at the differences is to compare which player won and the cards they have at the end, but this will always be differnet, 
+since the games are generated in different ways. Mine for example uses the given random number generator, while most others seem to use srand, so they all get a differenet 
+number of players and different results every time, even for the same seed, while mine gives the same results every time if you use the same seed. If everyone had used 
+the rng in rngs.c then we might be able to compare differences, but when I run my game for a seed and get 4 players while someone else gets 2 for the same seed, there are going to
+be tons of differences as far as gameplay, especially when they have differnet kingdom cards too. 
+
+That's why this isn't an ideal case for differential testing. Both of the implementations are completely different for the same seed. It would be one thing if each game was simply
+played different, with the same number of players and kingdom cards, then differences would be interesting to look at, but in this case everything is different, so the differences
+are basically the entire game, which doesn't really provide any sort of useful or valuable information when comparing one to the other. 
