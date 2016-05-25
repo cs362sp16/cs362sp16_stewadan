@@ -1,0 +1,33 @@
+#!/bin/bash
+# script to compile and run two dominion tests. It needs to have 3 inputs, the first two being the two directory locations and the third
+# being the random seed
+
+echo 'Directory 1 = ' $1
+echo 'Directory 2 = ' $2
+echo 'Random Seed = ' $3
+
+cd $1
+pwd
+make all
+rm dominion_log.txt
+./testdominion $3 >>dominion_log.txt
+check1=$?
+
+cd $HOME
+
+cd $2
+pwd
+make all
+rm dominion_log_2.txt
+./testdominion $3 >>dominion_log_2.txt
+check2=$?
+
+echo check 1 is $check1
+echo check 2 is $check2
+
+if [ $check1 -ne $check2 ]; then
+   echo TEST FAILED
+   diff $1/dominion_log.txt $2/dominion_log_2.txt >> dominion_diff.txt
+else
+   echo TEST PASSED
+fi
