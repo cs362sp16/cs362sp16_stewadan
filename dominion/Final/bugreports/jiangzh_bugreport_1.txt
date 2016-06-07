@@ -1,0 +1,8 @@
+Bug found for the council_room card.
+
+The number of cards in player ones hand are not correct after playing the council room card. The player should draw 4 cards and discard the 
+council_room card itself, giving them 5+4-1=8 cards, but they have 7 instead. 
+
+The error is in the council_room function, it has the player draw cards in a for loop, but it only goes to i<3, it should be i<4.
+
+

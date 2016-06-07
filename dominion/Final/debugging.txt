@@ -1,0 +1,123 @@
+I'm going to be attempting to fix a bug that I noticed through the output of several of my card unit tests. 
+
+I created unit tests to test the minion and council room cards. The unit tests for each of these cards always features a failing case whenever i
+run them, as shown below, 
+
+
+TESTING CARD minion...
+NUMBER OF COINS: 3
+PLAYING MINION...
+NUMBER OF COINS: 5
+
+TEST PASSED
+
+NUMBER OF CARDS IN PLAYER 0 HAND: 4
+
+TEST PASSED
+
+NUMBER OF CARDS IN PLAYER 1 HAND: 5
+
+TEST FAILED
+
+File 'dominion.c'
+Lines executed:33.21% of 557
+Creating 'dominion.c.gcov'
+
+TESTING CARD council_room...
+NUMBER OF CARDS IN PLAYER 0 HAND: 5
+NUMBER OF BUYS FOR PLAYER 0: 1
+PLAYING COUNCIL ROOM...
+NUMBER OF CARDS IN PLAYER 0 HAND IS NOW: 8
+NUMBER OF BUYS FOR PLAYER 0 NOW: 2
+
+TEST 1 PASSED
+
+TEST 2 PASSED
+
+NUMBER OF CARDS IN PLAYER 1 HAND: 5
+
+TEST 3 FAILED
+
+File 'dominion.c'
+Lines executed:34.65% of 557
+Creating 'dominion.c.gcov'
+
+
+Test 3 fails for both the minion card and the council room card. In both cases this test checks to see that the correct number of cards have been drawn. Both the minion card and the council room cards are cards that 
+require other players in the game to draw cards, so i included tests to check to see, since player 0 is playing the card, that the next player has actually drawn cards, but this doesn't appear to be the case as the next
+player always has 5 cards regardless of how many cards they should've drawn. 
+
+I think this problem is coming from the end turn function, and probably from when the game is being initalized as well.
+This is the end turn function
+
+
+ int endTurn(struct gameState *state) {
+  int k;
+  int i;
+  int currentPlayer = whoseTurn(state);
+  
+  //Discard hand
+  for (i = 0; i < state->handCount[currentPlayer]; i++){
+    state->discard[currentPlayer][state->discardCount[currentPlayer]++] = state->hand[currentPlayer][i];//Discard
+    state->hand[currentPlayer][i] = -1;//Set card to -1
+  }
+  state->handCount[currentPlayer] = 0;//Reset hand count
+    
+  //Code for determining the player
+  if (currentPlayer < (state->numPlayers - 1)){ 
+    state->whoseTurn = currentPlayer + 1;//Still safe to increment
+  }
+  else{
+    state->whoseTurn = 0;//Max player has been reached, loop back around to player 1
+  }
+
+  state->outpostPlayed = 0;
+  state->phase = 0;
+  state->numActions = 1;
+  state->coins = 0;
+  state->numBuys = 1;
+  state->playedCardCount = 0;
+  state->handCount[state->whoseTurn] = 0;
+
+  //Next player draws hand
+  for (k = 0; k < 5; k++){
+    drawCard(state->whoseTurn, state);//Draw a card
+  }
+
+  //Update money
+  updateCoins(state->whoseTurn, state , 0);
+
+  return 0;
+}
+
+
+I notice that when a player ends their turn, they discard all of the cards in their hand. Then, it sets whoseturn in the gamestate to be the next player and has them draw 5 cards. This isn't right, in a game of dominion, 
+a player discards their hand and draws 5 cards at the end of their turn, so it should have the player drawing 5 cards after discarding, not having them have 0 cards and only draw cards when the player before them ends their turn. 
+
+I notice this in the output of my testdominion.c as well, at the end it outputs every players hand, and each hand is always empty except for the current players.
+To fix this problem I need to make sure that every player draws 5 cards at the start of the game, and then end turn discards the players hand and then draws 5 more, instead of drawing 5 for the next player. 
+Looking at initalizegame in dominion.c, i notice that his code is commented out
+
+ 
+  //draw player hands
+  for (i = 0; i < numPlayers; i++)
+    {  
+      //initialize hand size to zero
+      state->handCount[i] = 0;
+      state->discardCount[i] = 0;
+      //draw 5 cards
+      // for (j = 0; j < 5; j++)
+      //	{
+      //	  drawCard(i, state);
+      //	}
+    }
+  
+this is the code for having each player draw 5 cards at the start, so it needs to be included.
+Simply including this code and getting rid of the code that only makes player 0 draw a card leads testdominion to run in an infinite loop. 
+Looking at it more, endTurn, after discarding to 0 cards and then drawing 5 for the player now, goes to the next players turn and sets their hand count to 0. So even though they have 5 cards, it says they have 0.
+This means that by turn 2 the player will have drawn every card in their deck but the game wont know it, so it just runs forever with players who all have seemingly empty hands. Fixing this leads to a currect implementation 
+of endTurn, and the one failing unit tests Are now passing. 
+I think Agan's first principle was important in me solving this problem. Before debugging code for dominion, you should first know how to actually play dominion and how a proper
+turn sequence is carried out. Before this I knw the basic rules and how a game went but i didn't actually know if playerse did discard their hands at the end of their turn and 
+then wait to draw them, if they did this wouldn't be a problem, but they don't. I also tried to follow 5 and 6, by only changing one thing at a time and keeping track of what i changed 
+in this file so that I wouldn't end up confusing myself if i changed both the endturn function and initalize game function at the same time.  
