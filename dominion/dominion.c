@@ -34,9 +34,7 @@ int* kingdomCards(int k1, int k2, int k3, int k4, int k5, int k6, int k7,
   return k;
 }
 
-int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
-		   struct gameState *state) {
-
+int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed, struct gameState *state) {
   int i;
   int j;
   int it;			
@@ -158,19 +156,6 @@ int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
 	  return -1;
 	}
     }
-
-  //draw player hands
-  for (i = 0; i < numPlayers; i++)
-    {  
-      //initialize hand size to zero
-      state->handCount[i] = 0;
-      state->discardCount[i] = 0;
-      //draw 5 cards
-      // for (j = 0; j < 5; j++)
-      //	{
-      //	  drawCard(i, state);
-      //	}
-    }
   
   //set embargo tokens to 0 for all supply piles
   for (i = 0; i <= treasure_map; i++)
@@ -186,13 +171,21 @@ int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
   state->playedCardCount = 0;
   state->whoseTurn = 0;
   state->handCount[state->whoseTurn] = 0;
-  //int it; move to top
 
-  //Moved draw cards to here, only drawing at the start of a turn
-  for (it = 0; it < 5; it++){
-    drawCard(state->whoseTurn, state);
-  }
+  for (i = 0; i < numPlayers; i++)
+    {  
+      //initialize hand size to zero
+      state->handCount[i] = 0;
+      //draw 5 cards
+      for (j = 0; j < 5; j++)
+      {
+	 drawCard(i, state);
+      }
+    }
+    
 
+  printf("number of cards for 0 is %d\n",state->handCount[0]);
+  printf("number of cards for 1 is %d\n",state->handCount[1]);
   updateCoins(state->whoseTurn, state, 0);
 
   return 0;
@@ -351,13 +344,16 @@ int endTurn(struct gameState *state) {
   int k;
   int i;
   int currentPlayer = whoseTurn(state);
-  
+ 
   //Discard hand
   for (i = 0; i < state->handCount[currentPlayer]; i++){
     state->discard[currentPlayer][state->discardCount[currentPlayer]++] = state->hand[currentPlayer][i];//Discard
     state->hand[currentPlayer][i] = -1;//Set card to -1
   }
   state->handCount[currentPlayer] = 0;//Reset hand count
+  for (k = 0; k < 5; k++){
+    drawCard(state->whoseTurn, state);//Draw a card
+  }
     
   //Code for determining the player
   if (currentPlayer < (state->numPlayers - 1)){ 
@@ -373,14 +369,9 @@ int endTurn(struct gameState *state) {
   state->coins = 0;
   state->numBuys = 1;
   state->playedCardCount = 0;
-  state->handCount[state->whoseTurn] = 0;
 
   //int k; move to top
   //Next player draws hand
-  for (k = 0; k < 5; k++){
-    drawCard(state->whoseTurn, state);//Draw a card
-  }
-
   //Update money
   updateCoins(state->whoseTurn, state , 0);
 
@@ -523,7 +514,8 @@ int getWinners(int players[MAX_PLAYERS], struct gameState *state) {
 }
 
 int drawCard(int player, struct gameState *state)
-{	int count;
+{	
+  int count;
   int deckCounter;
   if (state->deckCount[player] <= 0){//Deck is empty
     
@@ -649,7 +641,7 @@ int card_smithy(struct gameState *state, int currentPlayer, int handPos) {
    for (i = 0; i < 3; i++) {
       drawCard(currentPlayer, state);
    }
-   //discard carsd from hand
+   //discard cards from hand
    discardCard(handPos, currentPlayer, state, 0);
    return 0;
 }
@@ -685,11 +677,11 @@ int card_outpost(struct gameState *state, int currentPlayer, int handPos) {
 int card_salvager(struct gameState *state, int currentPlayer, int handPos, int choice1) {
    //+1 buy
    state->numBuys++;
-   if (choice1) {
+   if (choice1 >= 0) {
       //gain coins equal to trashed card
       state->coins = state->coins + getCost( handCard(choice1, state) );
       //trash card
-      discardCard(choice1, currentPlayer, state, 1);	
+      discardCard(choice1, currentPlayer, state, 1);
    }
    //discard card
    discardCard(handPos, currentPlayer, state, 0);
@@ -731,7 +723,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
        return card_outpost(state, currentPlayer, handPos);
 
     case salvager:
-       return card_salvager(state, currentPlayer, handPos, choice2);
+       return card_salvager(state, currentPlayer, handPos, choice1);
 
     case adventurer:
       while(drawntreasure<2){
@@ -760,7 +752,6 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
 	{
 	  drawCard(currentPlayer, state);
 	}
-			
       //+1 Buy
       state->numBuys++;
 			
@@ -772,7 +763,6 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
 	      drawCard(i, state);
 	    }
 	}
-			
       //put played card in played card pile
       discardCard(handPos, currentPlayer, state, 0);
 			

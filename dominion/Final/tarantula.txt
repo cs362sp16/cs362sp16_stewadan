@@ -1,0 +1,60 @@
+I chose to use tarantula because It was the only one that I can do on my own pc. I had to use someone else's implementation if it though. 
+
+I ran it on my randomtestcard1.c code, which runs 20 times for any given seed, with the seed 42. 
+
+As expected, the lines that run for every single implementation are marked as suspicious, since they're present in 100% of the failing test cases, which is just about every line. 
+Whats more interesting is the total amount of times every line is ran, the lines that are green and not suspicious at all are only ran in 18/20 test cases. 
+
+
+        20:  677:int card_salvager(struct gameState *state, int currentPlayer, int handPos, int choice1) {
+        -:  678:   //+1 buy
+       20:  679:   state->numBuys++;
+       20:  680:   if (choice1) {
+        -:  681:      //gain coins equal to trashed card
+       18:  682:      state->coins = state->coins + getCost( handCard(choice1, state) );
+        -:  683:      //trash card
+       18:  684:      discardCard(choice1, currentPlayer, state, 1);
+        -:  685:   }
+        -:  686:   //discard card
+       20:  687:   discardCard(handPos, currentPlayer, state, 0);
+       20:  688:   return 0;
+        -:  689:}
+
+
+This is the section of gcov, showing that the function is called 20 times, while lines 682 and 684 are called 18 times each and are not suspicious, so these lines run for every passing test case
+but don't run for every failing one. These are the lines that actually increaese the number of coins and then discard the card. Looking at the print out of the test cases that fail, the part that's failing
+is them returning the correct number of coins.
+
+Looking at the actual output for randomtestcard1, the 2 times it fails it's trying to salvage another salvager card. From the tarantula report and gcov, this never gets past line 680, where it simply
+skips the if statement and then just discards the card. Im not entirely sure why this is happening though, as the salvager card is marked in the enum for cards as 24, so its number is 24, it should go
+through the if statement.
+
+The if statement is taking choice1, which is the hand position of the card, not the cards actual number as i though before, so for these 2 test cases choice1 must be 0. 
+After making modifications to the randomtestcard1.c file, it turns out that both failing test cases are actually using the first card in the hand, at position 0. 
+
+
+    if (choice1 >= 0) {
+      //gain coins equal to trashed card
+      state->coins = state->coins + getCost( handCard(choice1, state) );
+      //trash card
+      discardCard(choice1, currentPlayer, state, 1);
+   }
+
+After changing the dominion code for salvager to the above, and running it again with gcov and tarantula, i see that every tets case passes, and none of the lines are suspicious because none of them are
+from failing test cases. 
+
+
+       20:  677:int card_salvager(struct gameState *state, int currentPlayer, int handPos, int choice1) {
+        -:  678:   //+1 buy
+       20:  679:   state->numBuys++;
+       20:  680:   if (choice1) {
+        -:  681:      //gain coins equal to trashed card
+       20:  682:      state->coins = state->coins + getCost( handCard(choice1, state) );
+        -:  683:      //trash card
+       20:  684:      discardCard(choice1, currentPlayer, state, 1);
+        -:  685:   }
+        -:  686:   //discard card
+       20:  687:   discardCard(handPos, currentPlayer, state, 0);
+       20:  688:   return 0;
+        -:  689:}
+        -:  690:

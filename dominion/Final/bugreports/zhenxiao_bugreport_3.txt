@@ -1,0 +1,7 @@
+Bug found for the village card.
+
+The villager card is failing to perform both of its actions, as all of the unit tests for it fail. It should be giving the player 2 more actions
+and drawing one card. Instead it gives one action and doesn't draw any cards.
+
+The bug is in the fvillage function, all it does is increase actions by one and then discard the card, it needs to increase actions by 2
+and also draw a card.

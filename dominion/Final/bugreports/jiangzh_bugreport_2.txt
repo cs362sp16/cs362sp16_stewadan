@@ -1,0 +1,8 @@
+Bug found for the village card.
+
+the village card is giving the player too many actions. The villager card should give the player 2 actions, so they have a total of 3, but after playing it they have 4 actions left.
+
+The bug is in the village function, it has the line 
+    state->numActions = state->numActions + 3;
+which should be state->numActions + 2 instead of 3.
+
